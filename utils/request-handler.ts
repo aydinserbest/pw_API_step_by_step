@@ -14,9 +14,9 @@ export class RequestHandler {
     private defaultAuthToken: string;
     private clearAuthFlag: boolean
 
-    constructor(request: APIRequestContext, baseUrl: string, authToken: string = '') {
+    constructor(request: APIRequestContext, apiBaseUrl: string, authToken: string = '') {
         this.request = request;
-        this.baseUrl = baseUrl;
+        this.defaultBaseUrl = apiBaseUrl;
         this.defaultAuthToken = authToken;
     }
     // ✅ Set API path
@@ -30,6 +30,10 @@ export class RequestHandler {
         this.queryParams = params;
         return this;
     }
+    url(url: string) {
+        this.baseUrl = url;
+        return this;
+      }
 
     // ✅ Add headers (including Authorization token if available)
     headers(headers: Record<string, string>) {
@@ -45,11 +49,11 @@ export class RequestHandler {
 
     // ✅ Build full request URL
     private getUrl() {
-        const url = new URL(`${this.baseUrl}${this.apiPath}`);
+        const url = new URL(`${this.baseUrl ?? this.defaultBaseUrl}${this.apiPath}`)
         for (const [key, value] of Object.entries(this.queryParams)) {
-            url.searchParams.append(key, value);
+            url.searchParams.append(key, value)
         }
-        return url.toString();
+        return url.toString()
     }
     clearAuth(){
         this.clearAuthFlag = true;
@@ -64,6 +68,7 @@ export class RequestHandler {
             const response = await this.request.get(url, {
                 headers: this.getHeaders(),
             });
+            this.cleanupFields();
             const actualStatusCode = response.status();
             responseJson = await response.json();
         
@@ -81,6 +86,7 @@ export class RequestHandler {
                 headers: this.getHeaders(),
                 data: this.apiBody,
             });
+            this.cleanupFields();
             const actualStatusCode = response.status();
             responseJson = await response.json();
         })

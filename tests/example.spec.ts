@@ -32,18 +32,31 @@ test("Verify created article visibility: Without token vs With token", async ({ 
   const getArticlesWithoutToken = await api
   .path("/articles")
   .params({ limit: 10, offset: 0 })
-  .clearAuth()  //should return an empty apiHeaders ???
+  .clearAuth()  //should return an empty apiHeaders 
   .getRequest(200)
   console.log(getArticlesWithoutToken.articles)
   console.log(getArticlesWithoutToken.articlesCount)
-  expect(getArticlesWithoutToken.articlesCount).toEqual(10); // 🔹 The new article should not be visible without token
-  // BUT IT IS VISIBLE
+  expect(getArticlesWithoutToken.articlesCount).toEqual(10); 
 
-/*
+
   expect(getArticlesWithoutToken.articlesCount).toEqual(10);
   // 🔹 The article should not be visible without token
   const articleTitlesWithoutLogin = getArticlesWithoutToken.articles.map(a => a.title);
   expect(articleTitlesWithoutLogin).not.toContain("Test Article Visibility");
 
-*/
+
+  // delete the article
+  const deleteArticle = await api
+  .path(`/articles/${slugId}`)
+  .deleteRequest(200)
+
+  // 🔹 Get the article list with TOKEN
+  const getArticlesWithToken = await api
+  .path("/articles")
+  .params({ limit: 10, offset: 0 })
+  .getRequest(200)
+  expect(getArticlesWithToken.articlesCount).toEqual(10);
+
+  
+
 })
