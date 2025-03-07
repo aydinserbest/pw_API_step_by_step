@@ -86,7 +86,7 @@ export class RequestHandler {
                 headers: this.getHeaders(),
                 data: this.apiBody,
             });
-            this.cleanupFields();
+          //  this.cleanupFields();
             const actualStatusCode = response.status();
             responseJson = await response.json();
         })
@@ -118,7 +118,7 @@ export class RequestHandler {
         return responseJson;
     }
     
-    private getHeaders() {
+    public getHeaders() {
         if(!this.clearAuthFlag) {
           this.apiHeaders["Authorization"] = this.apiHeaders["Authorization"] || this.defaultAuthToken;
         }
